@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">BigBank</string>
+
+
+    <string-array name="spinner_gender">
+        <item>Select Gender</item>
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
+
+    <string-array name="spinner_nation">
+        <item>Select Nation</item>
+        <item>Nation 1</item>
+        <item>Nation 2</item>
+        <item>Nation 3</item>
+    </string-array>
+
+    <string-array name="spinner_state">
+        <item>Select State</item>
+        <item>State 1</item>
+        <item>State 2</item>
+        <item>State 3</item>
+    </string-array>
+</resources>
