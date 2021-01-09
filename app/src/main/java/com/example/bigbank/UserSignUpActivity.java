@@ -3,7 +3,9 @@ package com.example.bigbank;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,8 +13,10 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.bigbank.Database.DatabaseHelper;
 import com.example.bigbank.Model.User;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,10 +39,19 @@ public class UserSignUpActivity extends AppCompatActivity {
     Button buttonSignup;
     ProgressBar progressBar;
 
+    ArrayList<User> list;
+
+    DatabaseHelper databaseHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_sign_up);
+
+        databaseHelper = new DatabaseHelper(this);
+        list = new ArrayList<>();
+
+        new GetDataFromDatabase().execute();
 
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
@@ -61,7 +74,6 @@ public class UserSignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
                 if(
                         editTextEmail.getText().toString().equals("") ||
                                 editTextPassword.getText().toString().equals("") ||
@@ -78,6 +90,13 @@ public class UserSignUpActivity extends AppCompatActivity {
                 ){
 
                     Toast.makeText(UserSignUpActivity.this, "Please fill all details", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String email = editTextEmail.getText().toString();
+
+
+                if(isEmailUsed(email)){
+                    Toast.makeText(UserSignUpActivity.this, "Try different email address, this email address already registered", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -99,6 +118,8 @@ public class UserSignUpActivity extends AppCompatActivity {
                         String gender = spinnerGender.getSelectedItem().toString();
                         String nation = spinnerNation.getSelectedItem().toString();
                         String state = spinnerState.getSelectedItem().toString();
+                        String cardNumber = "_";
+                        String cvc = "_";
                         int usingFirstTime = 1;
                         int receivedCard = 0;
 
@@ -115,6 +136,8 @@ public class UserSignUpActivity extends AppCompatActivity {
                         user.setGender(gender);
                         user.setNation(nation);
                         user.setState(state);
+                        user.setCardNumber(cardNumber);
+                        user.setCvc(cvc);
                         user.setUsingFirstTime(usingFirstTime);
                         user.setReceivedCard(receivedCard);
 
@@ -129,7 +152,34 @@ public class UserSignUpActivity extends AppCompatActivity {
 
             }
         });
+    }
 
+    boolean isEmailUsed(String email){
 
+        for (int i = 0; i < list.size(); i++){
+            if(list.get(i).getEmail().equals(email)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private class GetDataFromDatabase extends AsyncTask<Void, Void, ArrayList<User>> {
+
+        @Override
+        protected ArrayList<User> doInBackground(Void... voids) {
+            return databaseHelper.getAllUsers();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<User> users) {
+            super.onPostExecute(users);
+            progressBar.setVisibility(View.GONE);
+            list.clear();
+            list.addAll(users);
+
+            Log.i("TAKA", list.size()+"");
+        }
     }
 }

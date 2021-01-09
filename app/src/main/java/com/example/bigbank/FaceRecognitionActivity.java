@@ -33,12 +33,9 @@ public class FaceRecognitionActivity extends AppCompatActivity {
 
         databaseHelper = new DatabaseHelper(this);
         user = (User) getIntent().getSerializableExtra("user");
-        frontImage = getIntent().getStringExtra("front");
-        backImage = getIntent().getStringExtra("back");
 
         buttonCapture = findViewById(R.id.buttonCapture);
         progressBar = findViewById(R.id.progressFaceRecognition);
-
 
         buttonCapture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,18 +52,16 @@ public class FaceRecognitionActivity extends AppCompatActivity {
                     public void run() {
 
 
-                        if(databaseHelper.insertUser(FaceRecognitionActivity.this,user) == -1){
-                            Toast.makeText(FaceRecognitionActivity.this, "Operation Failed", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-
+                        if(databaseHelper.insertUser(getApplicationContext(),user) == -1){
+                            //Toast.makeText(getApplicationContext(), "Registration Failed", Toast.LENGTH_SHORT).show();
+                            finish();
+                            Intent intent = new Intent(FaceRecognitionActivity.this, UserSignUpActivity.class);
+                            startActivity(intent);
                         }
                         else {
-                            Toast.makeText(FaceRecognitionActivity.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-
+                            //Toast.makeText(getApplicationContext(), "Registered Successfully", Toast.LENGTH_SHORT).show();
                             finish();
                             Intent intent = new Intent(FaceRecognitionActivity.this, DeliveryActivity.class);
-                            intent.putExtra("user", user);
                             startActivity(intent);
                         }
                     }

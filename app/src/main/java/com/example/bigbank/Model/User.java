@@ -26,6 +26,10 @@ public class User implements Serializable {
     private int receivedCard;          // 1 mean true and 0 means false
 
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setAddress(String address) {
         this.address = address;
     }

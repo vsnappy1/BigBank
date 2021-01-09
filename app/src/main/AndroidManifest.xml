@@ -11,15 +11,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BigBank">
-        <activity android:name=".BankActivity"></activity>
+        <activity android:name=".UserDetailActivity"></activity>
+        <activity android:name=".AdminDashboardActivity" />
+        <activity android:name=".AdminLoginActivity" />
+        <activity android:name=".BankActivity" />
         <activity android:name=".DeliveryActivity" />
         <activity android:name=".FaceRecognitionActivity" />
-        <activity android:name=".InfoSubmissionActivity">
-
-        </activity>
+        <activity android:name=".InfoSubmissionActivity" />
         <activity android:name=".UserSignUpActivity" />
         <activity android:name=".UserLoginActivity" />
-        <activity android:name=".MainActivity" >
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

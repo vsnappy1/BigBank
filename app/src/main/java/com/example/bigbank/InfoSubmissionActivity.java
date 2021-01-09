@@ -7,8 +7,10 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -21,6 +23,7 @@ import com.example.bigbank.Model.User;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,6 +40,7 @@ public class InfoSubmissionActivity extends AppCompatActivity {
     Button buttonSubmit;
 
     int RESULT_IMAGE_FRONT = 100, RESULT_IMAGE_BACK = 101;
+    int reqCode = -1;
 
     public static String frontImage;
     public static String backImage;
@@ -80,13 +84,12 @@ public class InfoSubmissionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
-                if(frontImage == null){
+                if (frontImage == null) {
                     Toast.makeText(InfoSubmissionActivity.this, "Please select front image", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if(backImage == null){
+                if (backImage == null) {
                     Toast.makeText(InfoSubmissionActivity.this, "Please select back image", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -101,9 +104,7 @@ public class InfoSubmissionActivity extends AppCompatActivity {
                         intent.putExtra("user", user);
                         startActivity(intent);
                     }
-                },MyConstant.FAKE_DELAY);
-
-
+                }, MyConstant.FAKE_DELAY);
             }
         });
     }
@@ -115,12 +116,56 @@ public class InfoSubmissionActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK) {
 
-
             try {
                 final Uri imageUri = data.getData();
-                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                this.reqCode = reqCode;
+                progressBar.setVisibility(View.VISIBLE);
+                new ImageToBitmap().execute(imageUri);
 
+            } catch (Exception e){
+                Toast.makeText(this, "Error: "+e.toString(), Toast.LENGTH_SHORT).show();
+            }
+
+        } else {
+            Toast.makeText(InfoSubmissionActivity.this, "You haven't picked Image", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    String bitmapToString(Bitmap bitmap) {
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 40, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        String encoded = Base64.encodeToString(byteArray, Base64.NO_WRAP);
+        return encoded;
+    }
+
+
+
+    private class ImageToBitmap extends AsyncTask<Uri, Void, Bitmap> {
+
+
+        @Override
+        protected Bitmap doInBackground(Uri... uris) {
+
+            Uri imageUri = uris[0];
+            Bitmap selectedImage = null;
+            final InputStream imageStream;
+            try {
+                imageStream = getContentResolver().openInputStream(imageUri);
+                selectedImage = BitmapFactory.decodeStream(imageStream);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return selectedImage;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap selectedImage) {
+            super.onPostExecute(selectedImage);
+
+            if(selectedImage != null){
                 if (reqCode == RESULT_IMAGE_FRONT) {
                     imageViewFront.setImageBitmap(selectedImage);
                     textViewFront.setVisibility(View.GONE);
@@ -130,28 +175,14 @@ public class InfoSubmissionActivity extends AppCompatActivity {
                     textViewBack.setVisibility(View.GONE);
                     backImage = bitmapToString(selectedImage);
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Toast.makeText(InfoSubmissionActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+            }else {
+                Toast.makeText(InfoSubmissionActivity.this, "Kindly select again", Toast.LENGTH_SHORT).show();
             }
+            progressBar.setVisibility(View.GONE);
 
-        } else {
-            Toast.makeText(InfoSubmissionActivity.this, "You haven't picked Image", Toast.LENGTH_LONG).show();
+
         }
     }
 
-    String bitmapToString(Bitmap bitmap){
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-        String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
-        return encoded;
-    }
-
-    Bitmap StringToBitmap(String encodedImage){
-        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        return decodedByte;
-    }
 }
