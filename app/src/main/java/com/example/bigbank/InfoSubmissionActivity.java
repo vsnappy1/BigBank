@@ -141,9 +141,23 @@ public class InfoSubmissionActivity extends AppCompatActivity {
     }
 
 
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
 
     private class ImageToBitmap extends AsyncTask<Uri, Void, Bitmap> {
-
 
         @Override
         protected Bitmap doInBackground(Uri... uris) {
@@ -167,22 +181,18 @@ public class InfoSubmissionActivity extends AppCompatActivity {
 
             if(selectedImage != null){
                 if (reqCode == RESULT_IMAGE_FRONT) {
-                    imageViewFront.setImageBitmap(selectedImage);
+                    imageViewFront.setImageBitmap(getResizedBitmap(selectedImage,300));
                     textViewFront.setVisibility(View.GONE);
-                    frontImage = bitmapToString(selectedImage);
+                    frontImage = bitmapToString(getResizedBitmap(selectedImage, 300));
                 } else if (reqCode == RESULT_IMAGE_BACK) {
-                    imageViewBack.setImageBitmap(selectedImage);
+                    imageViewBack.setImageBitmap(getResizedBitmap(selectedImage,300));
                     textViewBack.setVisibility(View.GONE);
-                    backImage = bitmapToString(selectedImage);
+                    backImage = bitmapToString(getResizedBitmap(selectedImage, 300));
                 }
             }else {
                 Toast.makeText(InfoSubmissionActivity.this, "Kindly select again", Toast.LENGTH_SHORT).show();
             }
             progressBar.setVisibility(View.GONE);
-
-
         }
     }
-
-
 }
